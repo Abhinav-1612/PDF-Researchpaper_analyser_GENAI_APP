@@ -15,7 +15,7 @@ from langchain_classic.chains.combine_documents import create_stuff_documents_ch
 from langchain_core.prompts import ChatPromptTemplate
 
 # Must be the very first Streamlit command
-st.set_page_config(page_title="Neural RAG System", layout="wide", page_icon="⚡")
+st.set_page_config(page_title="PDF/Paper Analyser", layout="wide", page_icon="⚡")
 
 # API Keys are now loaded securely from the .env file
 
