@@ -12,3 +12,4 @@ python-dotenv
 pymupdf
 pytesseract
 pillow
+protobuf>=4.21.0
