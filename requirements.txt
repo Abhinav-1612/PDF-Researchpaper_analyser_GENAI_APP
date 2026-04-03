@@ -6,10 +6,10 @@ langchain-groq
 langchain-huggingface
 langchain-classic
 pypdf
-chromadb
+chromadb==0.4.24
 sentence-transformers
 python-dotenv
 pymupdf
 pytesseract
 pillow
-protobuf>=4.21.0
+protobuf==3.20.3
