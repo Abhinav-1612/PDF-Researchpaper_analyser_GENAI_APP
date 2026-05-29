@@ -86,7 +86,7 @@
 
 ### Step 1: Clone the Repository
 ```bash
-git clone https://github.com/yourusername/pdf-analyzer-rag.git
+git clone https://github.com/Abhinav-1612/PDF-Researchpaper_analyser_GENAI_APP.git
 cd pdf-analyzer-rag
 ```
 
