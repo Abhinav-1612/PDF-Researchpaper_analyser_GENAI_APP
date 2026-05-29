@@ -1,4 +1,3 @@
-# PDF-Researchpaper_analyser_GENAI_APP
 # 📄 PDF & Research Paper Analyzer 🤖
 
 <div align="center">
