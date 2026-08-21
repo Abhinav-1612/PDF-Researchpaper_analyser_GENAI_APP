@@ -93,15 +93,6 @@ class QueryIntelligenceRetriever(BaseRetriever):
             f"docs={len(docs)}, time={elapsed_ms}ms"
         )
 
-        # Store strategy info in session state for the UI debug panel
-        try:
-            import streamlit as st
-            debug = st.session_state.get("last_retrieval_debug", {})
-            debug["qi_strategy"] = strategy_used
-            debug["timings"] = debug.get("timings", {})
-            debug["timings"]["query_intel_ms"] = elapsed_ms
-            st.session_state["last_retrieval_debug"] = debug
-        except Exception:
-            pass
+        # Streamlit debug removed
 
         return docs

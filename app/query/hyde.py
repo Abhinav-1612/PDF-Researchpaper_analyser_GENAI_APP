@@ -85,14 +85,7 @@ def hyde_retrieve(
     try:
         docs = retriever.invoke(hypothetical_doc)
 
-        # Store debug info for UI
-        try:
-            import streamlit as st
-            debug = st.session_state.get("last_retrieval_debug", {})
-            debug["hyde_doc"] = hypothetical_doc[:200]
-            st.session_state["last_retrieval_debug"] = debug
-        except Exception:
-            pass
+        # Streamlit debug removed
 
         logger.info(f"HyDE retrieved {len(docs)} docs")
         return docs

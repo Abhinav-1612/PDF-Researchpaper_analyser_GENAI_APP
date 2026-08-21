@@ -64,12 +64,7 @@ class AgenticRAGWrapper:
         logger.info(f"Starting Agentic RAG for: '{question}' | docs: {doc_names}")
         final_state = self.agent_app.invoke(initial_state, config={"callbacks": callbacks})
 
-        # Store trace for UI debug panel
-        try:
-            import streamlit as st
-            st.session_state["agent_trace"] = final_state.get("trace", [])
-        except Exception:
-            pass
+        # Streamlit debug removed
 
         return {
             "answer":  final_state.get("generation", "I could not find sufficient evidence."),

@@ -125,13 +125,6 @@ def multi_query_retrieve(
         f"Multi-query: {len(queries)} queries → {len(all_docs)} unique docs"
     )
 
-    # Store debug info for UI
-    try:
-        import streamlit as st
-        debug = st.session_state.get("last_retrieval_debug", {})
-        debug["multi_queries"] = queries
-        st.session_state["last_retrieval_debug"] = debug
-    except Exception:
-        pass
+    # Streamlit debug removed
 
     return all_docs

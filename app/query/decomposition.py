@@ -158,13 +158,6 @@ def decomposed_retrieve(
         f"{len(all_docs)} unique docs"
     )
 
-    # Store debug info for UI
-    try:
-        import streamlit as st
-        debug = st.session_state.get("last_retrieval_debug", {})
-        debug["sub_questions"] = sub_questions
-        st.session_state["last_retrieval_debug"] = debug
-    except Exception:
-        pass
+    # Streamlit debug removed
 
     return all_docs, sub_questions

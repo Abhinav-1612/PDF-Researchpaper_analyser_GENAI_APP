@@ -228,9 +228,5 @@ class HybridRetriever(BaseRetriever):
 
 
 def _store_debug(debug: Dict[str, Any]) -> None:
-    """Store retrieval debug data in Streamlit session state (if available)."""
-    try:
-        import streamlit as st
-        st.session_state["last_retrieval_debug"] = debug
-    except Exception:
-        pass  # Not running in Streamlit context — safe to ignore
+    """Store retrieval debug data (No-op after removing Streamlit)."""
+    pass
