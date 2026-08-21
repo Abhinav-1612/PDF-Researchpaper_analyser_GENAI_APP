@@ -151,10 +151,23 @@ else:
                     st.markdown(msg["think"])
             st.markdown(msg["content"])
             if msg.get("sources"):
-                with st.expander("Sources"):
-                    for s in msg["sources"]:
-                        st.caption(f"**{s['file']}** - Page {s['page']} | {s['type']}")
-                        st.text(s['content'][:300] + "...")
+                with st.expander(f"📚 View {len(msg['sources'])} Retrieved Fragments"):
+                    for i, s in enumerate(msg["sources"]):
+                        st.markdown(f"**Fragment {i+1}** | Page {s.get('page', '?')} | {s.get('extraction_method', 'Text')} | {s.get('file')}")
+                        
+                        # Display scores if available
+                        cols = st.columns(4)
+                        if s.get("rrf_score"): cols[0].caption(f"🏆 RRF: {s['rrf_score']:.3f}")
+                        if s.get("dense_score"): cols[1].caption(f"🧠 Dense: {s['dense_score']:.3f}")
+                        if s.get("bm25_score"): cols[2].caption(f"🔤 BM25: {s['bm25_score']:.3f}")
+                        if s.get("rerank_score"): cols[3].caption(f"⭐ Rerank: {s['rerank_score']:.3f}")
+                        
+                        st.info(s['content'])
+                        st.divider()
+                        
+            if msg.get("timing"):
+                t = msg["timing"]
+                st.caption(f"⏱️ Retrieval: {t.get('retrieval_ms', 0)}ms | Generation: {t.get('stream_ms', 0)}ms | Total: {t.get('total_ms', 0)}ms")
 
     # Chat input
     if prompt := st.chat_input("Ask a question about your documents..."):
@@ -186,6 +199,7 @@ else:
                     "chat_history": history,
                     "doc_names": st.session_state.doc_names,
                 })
+                retrieval_ms = round((time.perf_counter() - t_start) * 1000)
                 
                 full_answer = response.get("answer", "")
                 raw_sources = response.get("context", [])
@@ -210,6 +224,8 @@ else:
                 # Stream the actual answer using typewriter effect
                 message_placeholder = st.empty()
                 streamed_text = ""
+                t_stream_start = time.perf_counter()
+                
                 words = full_answer.split(" ")
                 for i, word in enumerate(words):
                     streamed_text += word + " "
@@ -217,28 +233,52 @@ else:
                     time.sleep(0.015)
                 message_placeholder.markdown(streamed_text)
                 
-                # Format sources
+                stream_ms = round((time.perf_counter() - t_stream_start) * 1000)
+                total_ms = retrieval_ms + stream_ms
+                
+                # Format rich sources
                 formatted_sources = []
                 for doc in raw_sources:
                     formatted_sources.append({
-                        "file": doc.metadata.get("source", "Unknown"),
-                        "page": doc.metadata.get("page", 1),
+                        "file": doc.metadata.get("source") or doc.metadata.get("document_name") or "Unknown",
+                        "page": doc.metadata.get("page", "?"),
+                        "extraction_method": doc.metadata.get("extraction_method", "Text"),
                         "type": "Section" if doc.metadata.get("is_parent") else "Chunk",
-                        "content": doc.page_content
+                        "content": doc.page_content,
+                        "dense_score": doc.metadata.get("dense_score"),
+                        "bm25_score": doc.metadata.get("bm25_score"),
+                        "rrf_score": doc.metadata.get("rrf_score"),
+                        "rerank_score": doc.metadata.get("rerank_score"),
                     })
                     
                 if formatted_sources:
-                    with st.expander("Sources"):
-                        for s in formatted_sources:
-                            st.caption(f"**{s['file']}** - Page {s['page']} | {s['type']}")
-                            st.text(s['content'][:300] + "...")
+                    with st.expander(f"📚 View {len(formatted_sources)} Retrieved Fragments"):
+                        for i, s in enumerate(formatted_sources):
+                            st.markdown(f"**Fragment {i+1}** | Page {s.get('page', '?')} | {s.get('extraction_method', 'Text')} | {s.get('file')}")
+                            
+                            cols = st.columns(4)
+                            if s.get("rrf_score"): cols[0].caption(f"🏆 RRF: {s['rrf_score']:.3f}")
+                            if s.get("dense_score"): cols[1].caption(f"🧠 Dense: {s['dense_score']:.3f}")
+                            if s.get("bm25_score"): cols[2].caption(f"🔤 BM25: {s['bm25_score']:.3f}")
+                            if s.get("rerank_score"): cols[3].caption(f"⭐ Rerank: {s['rerank_score']:.3f}")
+                            
+                            st.info(s['content'])
+                            st.divider()
+                
+                timing_data = {
+                    "retrieval_ms": retrieval_ms,
+                    "stream_ms": stream_ms,
+                    "total_ms": total_ms
+                }
+                st.caption(f"⏱️ Retrieval: {retrieval_ms}ms | Generation: {stream_ms}ms | Total: {total_ms}ms")
                 
                 # Save to history
                 st.session_state.messages.append({
                     "role": "assistant",
                     "content": streamed_text,
                     "think": think_content,
-                    "sources": formatted_sources
+                    "sources": formatted_sources,
+                    "timing": timing_data
                 })
                 
             except Exception as e:
