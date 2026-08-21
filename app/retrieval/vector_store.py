@@ -18,8 +18,7 @@ import logging
 import uuid
 from typing import Dict, List, Optional
 
-import chromadb
-from langchain_community.vectorstores import Chroma
+from langchain_pinecone import PineconeVectorStore
 from langchain_core.callbacks import CallbackManagerForRetrieverRun
 from langchain_core.documents import Document
 from langchain_core.retrievers import BaseRetriever
@@ -62,15 +61,22 @@ def build_vectorstore_retriever(
     top_k = top_k or settings.RETRIEVAL_TOP_K
     embedding_model = get_embedding_model()
 
-    ephemeral_client = chromadb.EphemeralClient()
-    collection_name = f"pdf_batch_{uuid.uuid4().hex}"
+    # We'll use a dynamic namespace per batch so it acts like an ephemeral collection
+    # but lives inside the persistent Pinecone index.
+    namespace = f"pdf_batch_{uuid.uuid4().hex}"
 
-    logger.info(f"Building ChromaDB (simple) with {len(documents)} chunks...")
-    vectorstore = Chroma.from_documents(
+    logger.info(f"Building Pinecone (simple) with {len(documents)} chunks in namespace {namespace}...")
+    
+    # Check if we have an API key
+    import os
+    if not os.environ.get("PINECONE_API_KEY"):
+        logger.warning("PINECONE_API_KEY not set. Pinecone insertion will fail.")
+
+    vectorstore = PineconeVectorStore.from_documents(
         documents=documents,
         embedding=embedding_model,
-        client=ephemeral_client,
-        collection_name=collection_name,
+        index_name=settings.PINECONE_INDEX_NAME,
+        namespace=namespace,
     )
     return vectorstore.as_retriever(search_kwargs={"k": top_k})
 
@@ -92,7 +98,7 @@ class ParentChildRetriever(BaseRetriever):
     If a child has no parent (edge case), the child itself is returned.
     """
 
-    child_vectorstore: Chroma
+    child_vectorstore: PineconeVectorStore
     parent_store: Dict[str, Document]
     top_k: int = 5
     fetch_k: int = 20   # fetch more children to maximise parent coverage
@@ -166,23 +172,21 @@ def build_parent_child_retriever(
         if chunk_id:
             parent_store[chunk_id] = doc
 
-    # Build child vector index
-    ephemeral_client = chromadb.EphemeralClient()
-    collection_name = f"children_{uuid.uuid4().hex}"
+    namespace = f"children_{uuid.uuid4().hex}"
 
     logger.info(
-        f"Building ParentChild index: {len(parent_docs)} parents, "
-        f"{len(child_docs)} children in '{collection_name}'"
+        f"Building ParentChild Pinecone index: {len(parent_docs)} parents, "
+        f"{len(child_docs)} children in namespace '{namespace}'"
     )
 
     if not child_docs:
         raise ValueError("No child documents provided — cannot build vector index.")
 
-    child_vectorstore = Chroma.from_documents(
+    child_vectorstore = PineconeVectorStore.from_documents(
         documents=child_docs,
         embedding=embedding_model,
-        client=ephemeral_client,
-        collection_name=collection_name,
+        index_name=settings.PINECONE_INDEX_NAME,
+        namespace=namespace,
     )
 
     return ParentChildRetriever(
@@ -242,17 +246,17 @@ def build_hybrid_retriever(
             parent_store[cid] = doc
 
     # Build dense vector index on child chunks
-    ephemeral_client = chromadb.EphemeralClient()
-    collection_name = f"hybrid_children_{uuid.uuid4().hex}"
+    namespace = f"hybrid_children_{uuid.uuid4().hex}"
     logger.info(
-        f"Building Hybrid index: {len(parent_docs)} parents, "
-        f"{len(child_docs)} children, reranking={enable_reranking}"
+        f"Building Hybrid Pinecone index: {len(parent_docs)} parents, "
+        f"{len(child_docs)} children, namespace={namespace}, reranking={enable_reranking}"
     )
-    child_vectorstore = Chroma.from_documents(
+    
+    child_vectorstore = PineconeVectorStore.from_documents(
         documents=child_docs,
         embedding=embedding_model,
-        client=ephemeral_client,
-        collection_name=collection_name,
+        index_name=settings.PINECONE_INDEX_NAME,
+        namespace=namespace,
     )
 
     # Build BM25 index on the same child chunks

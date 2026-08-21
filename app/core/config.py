@@ -36,12 +36,10 @@ class Settings(BaseSettings):
     EMBEDDING_DEVICE: str = "cpu"
 
     # --- Vector Store ---
-    # Phase 1: Chroma (ephemeral). Phase 3 will switch to Qdrant persistent.
-    VECTOR_STORE_TYPE: str = "chroma"  # "chroma" | "qdrant"
-    QDRANT_URL: str = "http://localhost:6333"
-    QDRANT_API_KEY: str = ""
-    QDRANT_COLLECTION_NAME: str = "advanced_rag_docs"
-    CHROMA_PERSIST_DIR: str = "./chroma_db"
+    VECTOR_STORE_TYPE: str = "pinecone"
+    PINECONE_API_KEY: str = ""
+    PINECONE_INDEX_NAME: str = "pdf-analyzer"
+    PINECONE_ENVIRONMENT: str = "us-east-1"
 
     # --- Retrieval ---
     RETRIEVAL_TOP_K: int = 5           # final chunks sent to LLM
@@ -95,6 +93,8 @@ def configure_environment() -> None:
     # CRITICAL: Prevent silent crashes on Windows when PyTorch and Paddle both load OpenMP
     os.environ.setdefault("KMP_DUPLICATE_LIB_OK", "TRUE")
 
-    # Set Groq API key from settings
+    # Set API keys from settings
     if settings.GROQ_API_KEY:
         os.environ["GROQ_API_KEY"] = settings.GROQ_API_KEY
+    if settings.PINECONE_API_KEY:
+        os.environ["PINECONE_API_KEY"] = settings.PINECONE_API_KEY
