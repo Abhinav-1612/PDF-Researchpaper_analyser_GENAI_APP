@@ -17,7 +17,10 @@ export default function App() {
   const [view, setView]                         = useState("upload");
   const [headerModelOpen, setHeaderModelOpen]   = useState(false);
 
-  const { messages, isLoading, statusText, streamingText, sendMessage, cancelStream, clearChat } = useChat(selectedModel);
+  const {
+    messages, isLoading, statusText, streamingText, streamingThink,
+    sendMessage, cancelStream, clearChat
+  } = useChat(selectedModel);
 
   // Load models on mount
   useEffect(() => { loadModels(); }, [loadModels]);
@@ -151,6 +154,7 @@ export default function App() {
                   isLoading={isLoading}
                   statusText={statusText}
                   streamingText={streamingText}
+                  streamingThink={streamingThink}
                   onSend={sendMessage}
                   onCancel={cancelStream}
                 />

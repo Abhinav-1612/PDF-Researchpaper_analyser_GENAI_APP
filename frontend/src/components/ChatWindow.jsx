@@ -4,7 +4,7 @@ import { Send, Square, MessageSquare } from "lucide-react";
 import ChatMessage from "./ChatMessage";
 import { useState } from "react";
 
-export default function ChatWindow({ messages, isLoading, statusText, streamingText, onSend, onCancel }) {
+export default function ChatWindow({ messages, isLoading, statusText, streamingText, streamingThink, onSend, onCancel }) {
   const [input, setInput] = useState("");
   const bottomRef = useRef(null);
   const textareaRef = useRef(null);
@@ -12,7 +12,7 @@ export default function ChatWindow({ messages, isLoading, statusText, streamingT
   // Auto-scroll on new content
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, streamingText]);
+  }, [messages, streamingText, streamingThink]);
 
   const handleSend = () => {
     if (!input.trim() || isLoading) return;
@@ -48,7 +48,7 @@ export default function ChatWindow({ messages, isLoading, statusText, streamingT
         {/* Streaming placeholder bubble */}
         {isLoading && (
           <ChatMessage
-            msg={{ role: "assistant" }}
+            msg={{ role: "assistant", think: streamingThink }}
             isStreaming
             streamingText={streamingText}
             statusText={statusText}

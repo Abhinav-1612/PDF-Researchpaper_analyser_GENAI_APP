@@ -8,11 +8,11 @@ import SourceFragments from "./SourceFragments";
 
 /* ── Parse <think> block out of the raw model output ─────────────────────── */
 function parseThinkContent(content) {
-  const match = content.match(/<think>([\s\S]*?)<\/think>/);
+  const match = content.match(/<think>([\s\S]*?)(?:<\/think>|$)/);
   if (!match) return { think: null, answer: content };
   return {
     think: match[1].trim(),
-    answer: content.replace(/<think>[\s\S]*?<\/think>/, "").trim(),
+    answer: content.replace(/<think>[\s\S]*?(?:<\/think>|$)/, "").trim(),
   };
 }
 
@@ -92,10 +92,9 @@ export default function ChatMessage({ msg, isStreaming, streamingText, statusTex
   // While model is still inside <think> block, show ThinkingAnimation, not raw text
   const thinkStreaming = !isUser && isStreaming && isInsideThink(rawContent);
 
-  // For completed messages, prefer the pre-parsed think from backend (msg.think).
-  // For streaming, try to parse it live as a fallback.
+  // Prefer pre-parsed think from backend (msg.think). Fallback to live parsing if needed.
   const { think: parsedThink, answer } = parseThinkContent(rawContent);
-  const think = (!isStreaming && msg?.think) ? msg.think : parsedThink;
+  const think = msg?.think || parsedThink;
   const displayText = isUser ? rawContent : (answer || rawContent);
 
   return (
@@ -134,8 +133,8 @@ export default function ChatMessage({ msg, isStreaming, streamingText, statusTex
             <ThinkingAnimation statusText="Thinking..." />
           )}
 
-          {/* Collapsed think block (only after streaming done) */}
-          {!isUser && !isStreaming && think && (
+          {/* Collapsed think block */}
+          {!isUser && think && (
             <ThinkBlock think={think} />
           )}
 

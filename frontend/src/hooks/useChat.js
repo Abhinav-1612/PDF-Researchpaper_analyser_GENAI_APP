@@ -6,6 +6,7 @@ export function useChat(selectedModel) {
   const [isLoading, setIsLoading]   = useState(false);
   const [statusText, setStatusText] = useState("");
   const [streamingText, setStreamingText] = useState("");
+  const [streamingThink, setStreamingThink] = useState(null);
   const controllerRef = useRef(null);
   const timingRef = useRef(null); // holds {retrieval_ms, stream_ms, total_ms}
 
@@ -26,6 +27,7 @@ export function useChat(selectedModel) {
       setIsLoading(true);
       setStatusText("Connecting...");
       setStreamingText("");
+      setStreamingThink(null);
       timingRef.current = null;
 
       let fullAnswer = "";
@@ -42,7 +44,10 @@ export function useChat(selectedModel) {
           fullAnswer += t;
           setStreamingText(fullAnswer);
         },
-        onThinking: (t) => { thinkContent = t; },
+        onThinking: (t) => { 
+          thinkContent = t; 
+          setStreamingThink(t);
+        },
         onSources: (s) => { sources = s; },
         onTiming:  (t) => { timing = t; },
         onDone: () => {
@@ -60,6 +65,7 @@ export function useChat(selectedModel) {
           setIsLoading(false);
           setStatusText("");
           setStreamingText("");
+          setStreamingThink(null);
           timingRef.current = null;
         },
         onError: (err) => {
@@ -76,6 +82,7 @@ export function useChat(selectedModel) {
           setIsLoading(false);
           setStatusText("");
           setStreamingText("");
+          setStreamingThink(null);
         },
       });
     },
@@ -91,8 +98,9 @@ export function useChat(selectedModel) {
   const clearChat = useCallback(() => {
     setMessages([]);
     setStreamingText("");
+    setStreamingThink(null);
     setStatusText("");
   }, []);
 
-  return { messages, isLoading, statusText, streamingText, sendMessage, cancelStream, clearChat };
+  return { messages, isLoading, statusText, streamingText, streamingThink, sendMessage, cancelStream, clearChat };
 }
