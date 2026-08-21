@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: pdf-intelligence-api
+    env: docker
+    envVars:
+      - key: PINECONE_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: PINECONE_INDEX_NAME
+        value: "pdf-analyzer"
+
