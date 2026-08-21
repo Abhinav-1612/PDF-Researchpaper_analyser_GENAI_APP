@@ -31,6 +31,7 @@ export function useChat(selectedModel) {
       let fullAnswer = "";
       let sources    = [];
       let timing     = null;
+      let thinkContent = null;
 
       controllerRef.current = streamQuery({
         query,
@@ -41,6 +42,7 @@ export function useChat(selectedModel) {
           fullAnswer += t;
           setStreamingText(fullAnswer);
         },
+        onThinking: (t) => { thinkContent = t; },
         onSources: (s) => { sources = s; },
         onTiming:  (t) => { timing = t; },
         onDone: () => {
@@ -50,6 +52,7 @@ export function useChat(selectedModel) {
               id: Date.now() + 1,
               role: "assistant",
               content: fullAnswer,
+              think: thinkContent,
               sources,
               timing,
             },

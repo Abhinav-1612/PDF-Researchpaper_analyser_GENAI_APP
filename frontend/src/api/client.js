@@ -51,12 +51,13 @@ export function streamQuery({ query, model, chatHistory = [], onStatus, onToken,
           if (!line.startsWith("data: ")) continue;
           try {
             const event = JSON.parse(line.slice(6));
-            if (event.type === "status")  onStatus?.(event.content);
-            if (event.type === "token")   onToken?.(event.content);
-            if (event.type === "sources") onSources?.(event.content);
-            if (event.type === "timing")  onTiming?.(event.content);
-            if (event.type === "done")    onDone?.();
-            if (event.type === "error")   onError?.(event.content);
+            if (event.type === "status")   onStatus?.(event.content);
+            if (event.type === "token")    onToken?.(event.content);
+            if (event.type === "thinking") onThinking?.(event.content);
+            if (event.type === "sources")  onSources?.(event.content);
+            if (event.type === "timing")   onTiming?.(event.content);
+            if (event.type === "done")     onDone?.();
+            if (event.type === "error")    onError?.(event.content);
           } catch {}
         }
       }

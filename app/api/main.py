@@ -251,8 +251,16 @@ async def stream_rag(request: QueryRequest):
             sources     = _format_sources(response.get("context", []))
             full_answer = response.get("answer", "")
 
-            # ── Step 2: Stream the answer word-by-word for typewriter effect ── #
+            # ── Step 2: Strip <think> block and stream only the clean answer ── #
             yield _sse({"type": "status", "content": "✍️ Streaming response..."})
+
+            # Extract <think> block if present and send it as a separate event
+            import re as _re
+            think_match = _re.search(r"<think>([\s\S]*?)</think>", full_answer, _re.IGNORECASE)
+            if think_match:
+                yield _sse({"type": "thinking", "content": think_match.group(1).strip()})
+                # Remove the think block from the answer the user sees
+                full_answer = _re.sub(r"<think>[\s\S]*?</think>", "", full_answer, flags=_re.IGNORECASE).strip()
 
             t_stream = _time.perf_counter()
             words = full_answer.split(" ")

@@ -92,7 +92,10 @@ export default function ChatMessage({ msg, isStreaming, streamingText, statusTex
   // While model is still inside <think> block, show ThinkingAnimation, not raw text
   const thinkStreaming = !isUser && isStreaming && isInsideThink(rawContent);
 
-  const { think, answer } = parseThinkContent(rawContent);
+  // For completed messages, prefer the pre-parsed think from backend (msg.think).
+  // For streaming, try to parse it live as a fallback.
+  const { think: parsedThink, answer } = parseThinkContent(rawContent);
+  const think = (!isStreaming && msg?.think) ? msg.think : parsedThink;
   const displayText = isUser ? rawContent : (answer || rawContent);
 
   return (
