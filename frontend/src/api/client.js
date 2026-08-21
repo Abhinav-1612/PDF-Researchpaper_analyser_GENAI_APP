@@ -20,7 +20,7 @@ export const uploadFiles = (files) => {
  * Calls onStatus, onToken, onSources, onDone, onError callbacks.
  * Returns an AbortController to cancel the stream.
  */
-export function streamQuery({ query, model, chatHistory = [], onStatus, onToken, onSources, onTiming, onDone, onError }) {
+export function streamQuery({ query, model, chatHistory = [], onStatus, onToken, onThinking, onSources, onTiming, onDone, onError }) {
   const controller = new AbortController();
 
   fetch(`${BASE_URL}/stream`, {

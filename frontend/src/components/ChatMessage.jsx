@@ -96,6 +96,10 @@ export default function ChatMessage({ msg, isStreaming, streamingText, statusTex
   const { think: parsedThink, answer } = parseThinkContent(rawContent);
   const think = msg?.think || parsedThink;
   const displayText = isUser ? rawContent : (answer || rawContent);
+  
+  if (!isUser) {
+    console.log("ChatMessage render:", { msgId: msg?.id, msgThinkLength: msg?.think?.length, parsedThinkLength: parsedThink?.length, finalThinkLength: think?.length, isStreaming });
+  }
 
   return (
     <motion.div
