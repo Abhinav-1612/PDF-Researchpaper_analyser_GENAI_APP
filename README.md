@@ -1,5 +1,7 @@
 # Enterprise Document Intelligence & Agentic RAG Platform
 
+🚀 **Live Demo:** [https://pdf-researchpaperanalysergenaiapp.streamlit.app/](https://pdf-researchpaperanalysergenaiapp.streamlit.app/)
+
 A production-grade, highly advanced Agentic Retrieval-Augmented Generation (RAG) platform. This project goes far beyond a basic LangChain tutorial, implementing state-of-the-art techniques for document ingestion, retrieval, and QA.
 
 ## 🌟 Key Features
