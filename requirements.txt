@@ -21,4 +21,4 @@ langgraph
 fastapi
 uvicorn
 python-multipart
-
+rank_bm25
