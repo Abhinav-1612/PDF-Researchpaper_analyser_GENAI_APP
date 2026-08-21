@@ -15,7 +15,8 @@ pytesseract
 pillow
 protobuf<4.0.0
 numpy
-
+paddlepaddle
+paddleocr
 langgraph
 fastapi
 uvicorn
