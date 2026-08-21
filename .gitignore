@@ -23,3 +23,8 @@ Thumbs.db
 
 # Other project files (not needed on GitHub)
 rag_app.py
+
+# Node / Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.eslintcache
