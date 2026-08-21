@@ -254,13 +254,21 @@ async def stream_rag(request: QueryRequest):
             # ── Step 2: Strip <think> block and stream only the clean answer ── #
             yield _sse({"type": "status", "content": "✍️ Streaming response..."})
 
-            # Extract <think> block if present and send it as a separate event
+            # Extract <think> block if present and send it as a separate event.
+            # IMPORTANT: require a proper </think> closing tag — using $ as fallback
+            # caused the regex to consume the entire answer as "thinking" content.
             import re as _re
-            think_match = _re.search(r"<think>([\s\S]*?)(?:</think>|$)", full_answer, _re.IGNORECASE)
+            think_match = _re.search(r"<think>([\s\S]*?)</think>", full_answer, _re.IGNORECASE)
             if think_match:
                 yield _sse({"type": "thinking", "content": think_match.group(1).strip()})
-                # Remove the think block from the answer the user sees
-                full_answer = _re.sub(r"<think>[\s\S]*?(?:</think>|$)", "", full_answer, flags=_re.IGNORECASE).strip()
+                # Remove the think block (and any leading whitespace) from the visible answer
+                full_answer = _re.sub(r"<think>[\s\S]*?</think>", "", full_answer, flags=_re.IGNORECASE).strip()
+            elif full_answer.strip().startswith("<think>"):
+                # Model started thinking but never closed the tag — treat entire content as thinking
+                # and leave a fallback message so the answer is not empty
+                think_content = _re.sub(r"^<think>\s*", "", full_answer.strip(), flags=_re.IGNORECASE)
+                yield _sse({"type": "thinking", "content": think_content.strip()})
+                full_answer = "I've completed my analysis. Please see the chain of thought above."
 
             t_stream = _time.perf_counter()
             words = full_answer.split(" ")

@@ -13,9 +13,12 @@ export function useUpload() {
   const loadModels = useCallback(async () => {
     try {
       const { data } = await getModels();
+      console.log("[useUpload] loadModels success:", data);
       setModels(data.models || []);
       setDefaultModel(data.default || "");
-    } catch {}
+    } catch (err) {
+      console.error("[useUpload] loadModels error:", err);
+    }
   }, []);
 
   const addFiles = useCallback((newFiles) => {

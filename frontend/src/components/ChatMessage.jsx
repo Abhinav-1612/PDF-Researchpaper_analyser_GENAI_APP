@@ -8,11 +8,13 @@ import SourceFragments from "./SourceFragments";
 
 /* ── Parse <think> block out of the raw model output ─────────────────────── */
 function parseThinkContent(content) {
-  const match = content.match(/<think>([\s\S]*?)(?:<\/think>|$)/);
+  // Require proper </think> closing tag — using $ as fallback caused the
+  // regex to swallow the entire answer as "thinking" content.
+  const match = content.match(/<think>([\s\S]*?)<\/think>/);
   if (!match) return { think: null, answer: content };
   return {
     think: match[1].trim(),
-    answer: content.replace(/<think>[\s\S]*?(?:<\/think>|$)/, "").trim(),
+    answer: content.replace(/<think>[\s\S]*?<\/think>/, "").trim(),
   };
 }
 
