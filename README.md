@@ -39,7 +39,7 @@ A production-grade, highly advanced Agentic Retrieval-Augmented Generation (RAG)
 ```mermaid
 graph TD
     %% Ingestion
-    subgraph Ingestion Pipeline
+    subgraph ingestion ["Ingestion Pipeline"]
         A[PDF Document] --> B{Parseable?}
         B -- Yes --> C[PyMuPDF Structure Parsing]
         B -- No / Scanned --> D[PaddleOCR / Tesseract]
@@ -50,7 +50,7 @@ graph TD
     end
 
     %% Query Intelligence
-    subgraph Query Intelligence
+    subgraph query_intel ["Query Intelligence"]
         Q[User Query] --> R[Query Classifier]
         R -- Complex --> S[Decomposer]
         R -- Ambiguous --> T[Multi-Query Expansion]
@@ -58,7 +58,7 @@ graph TD
     end
 
     %% Retrieval Pipeline
-    subgraph Hybrid Retrieval
+    subgraph retrieval ["Hybrid Retrieval"]
         U --> V[Dense Search]
         U --> W[BM25 Search]
         V --> X[Reciprocal Rank Fusion]
@@ -68,7 +68,7 @@ graph TD
     end
 
     %% Agentic RAG
-    subgraph Agentic RAG (LangGraph)
+    subgraph agentic_rag ["Agentic RAG (LangGraph)"]
         Z --> L1[Grade Documents]
         L1 -- Relevant --> L2[Generate Answer]
         L1 -- Irrelevant --> L3[Rewrite Query]
