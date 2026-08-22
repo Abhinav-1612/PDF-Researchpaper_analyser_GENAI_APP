@@ -52,6 +52,25 @@ class AgenticRAGWrapper:
             except Exception as e:
                 logger.warning(f"[LANGFUSE DEBUG] Failed to initialize Langfuse tracing: {e}")
 
+        # Quick intercept for trivial conversational fillers to save time & tokens
+        clean_q = question.lower().strip().strip(".!")
+        chit_chat_responses = {
+            "ok": "Is there anything else I can help you with?",
+            "okay": "Is there anything else I can help you with?",
+            "thanks": "You're welcome! Let me know if you have more questions.",
+            "thank you": "You're welcome! Let me know if you have more questions.",
+            "hi": "Hello! How can I help you with your documents today?",
+            "hello": "Hello! How can I help you with your documents today?",
+            "yes": "Great! What else would you like to know?",
+            "no": "Alright. Feel free to ask if you need anything else."
+        }
+        
+        if clean_q in chit_chat_responses:
+            return {
+                "answer": chit_chat_responses[clean_q],
+                "context": []
+            }
+
         # Initialize the LangGraph state
         initial_state = {
             "question":     question,
