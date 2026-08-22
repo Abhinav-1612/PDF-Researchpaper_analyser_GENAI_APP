@@ -13,7 +13,7 @@ python-dotenv==1.2.2
 pymupdf==1.28.2
 pytesseract==0.3.13
 pillow==12.3.0
-protobuf<4.0.0
+protobuf==6.33.6
 numpy==2.3.5
 paddlepaddle==3.3.1
 paddleocr==3.7.0
@@ -23,4 +23,4 @@ uvicorn==0.52.3
 python-multipart==0.0.32
 rank_bm25==0.2.2
 langfuse==4.14.4
-wrapt>=1.14,<2
+wrapt==2.3.0
