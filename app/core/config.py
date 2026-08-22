@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     GROQ_API_KEY: str = ""
     LANGFUSE_PUBLIC_KEY: str = ""
     LANGFUSE_SECRET_KEY: str = ""
-    LANGFUSE_HOST: str = "http://localhost:3000"
+    LANGFUSE_HOST: str = "https://cloud.langfuse.com"
 
     # --- LLM ---
     DEFAULT_LLM_MODEL: str = "qwen/qwen3.6-27b"
@@ -68,7 +68,7 @@ class Settings(BaseSettings):
     MAX_AGENT_RETRIES: int = 2         # max corrective RAG retries
 
     # --- Observability ---
-    ENABLE_TRACING: bool = False       # toggle Langfuse tracing
+    ENABLE_TRACING: bool = True        # toggle Langfuse tracing
     TRACING_PROVIDER: str = "langfuse" # "langfuse" | "langsmith"
 
     model_config = {"env_file": ".env", "extra": "ignore", "env_file_encoding": "utf-8"}
@@ -93,8 +93,14 @@ def configure_environment() -> None:
     # CRITICAL: Prevent silent crashes on Windows when PyTorch and Paddle both load OpenMP
     os.environ.setdefault("KMP_DUPLICATE_LIB_OK", "TRUE")
 
-    # Set API keys from settings
+    # Set API keys from settings into os.environ so all libraries pick them up
     if settings.GROQ_API_KEY:
         os.environ["GROQ_API_KEY"] = settings.GROQ_API_KEY
     if settings.PINECONE_API_KEY:
         os.environ["PINECONE_API_KEY"] = settings.PINECONE_API_KEY
+    if settings.LANGFUSE_PUBLIC_KEY:
+        os.environ["LANGFUSE_PUBLIC_KEY"] = settings.LANGFUSE_PUBLIC_KEY
+    if settings.LANGFUSE_SECRET_KEY:
+        os.environ["LANGFUSE_SECRET_KEY"] = settings.LANGFUSE_SECRET_KEY
+    if settings.LANGFUSE_HOST:
+        os.environ["LANGFUSE_HOST"] = settings.LANGFUSE_HOST
