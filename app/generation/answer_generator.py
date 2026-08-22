@@ -38,17 +38,23 @@ class AgenticRAGWrapper:
 
         # Phase 8: Configure Langfuse tracing
         callbacks = []
+        logger.warning(
+            f"[LANGFUSE DEBUG] PUBLIC_KEY set: {bool(settings.LANGFUSE_PUBLIC_KEY)} | "
+            f"SECRET_KEY set: {bool(settings.LANGFUSE_SECRET_KEY)} | "
+            f"HOST: {settings.LANGFUSE_HOST}"
+        )
         if settings.LANGFUSE_PUBLIC_KEY and settings.LANGFUSE_SECRET_KEY:
             try:
-                from langfuse.callback import CallbackHandler
+                from langfuse.langchain import CallbackHandler
                 langfuse_handler = CallbackHandler(
                     public_key=settings.LANGFUSE_PUBLIC_KEY,
                     secret_key=settings.LANGFUSE_SECRET_KEY,
                     host=settings.LANGFUSE_HOST,
                 )
                 callbacks.append(langfuse_handler)
+                logger.warning("[LANGFUSE DEBUG] Langfuse callback registered successfully!")
             except Exception as e:
-                logger.warning(f"Failed to initialize Langfuse tracing: {e}")
+                logger.warning(f"[LANGFUSE DEBUG] Failed to initialize Langfuse tracing: {e}")
 
         # Initialize the LangGraph state
         initial_state = {
